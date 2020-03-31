@@ -41,7 +41,7 @@
           "iso_checksum_type": "{{ user `iso_checksum_type` }}",
           "iso_urls": [ "{{ user `iso_url` }}" ],
 
-          "output_directory": "output-{{ user `vm_name` }}",
+          "output_directory": "output",
           "shutdown_command": "echo '{{ user `ssh_password` }}'|sudo -S shutdown -P now",
           
           "ssh_password": "{{ user `ssh_password` }}",
@@ -108,7 +108,7 @@
         [
           {
             "type": "shell-local",
-            "inline": ["onevm disk-saveas ubuntu1804.qcow2 0 ubuntu1804fin.qcow2"]
+            "inline": ["onevm disk-saveas /home/sysadmin/proyectoCI/MyPacker1/packer_kvm_ubu_1/output/ubuntu1804.qcow2 0 ubuntu1804fin.qcow2"]
           }
         ]
       ]
