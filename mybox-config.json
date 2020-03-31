@@ -102,6 +102,14 @@
         "update": "false",
         "vagrantfile_template": "",
         "version": "1",
-        "vm_name": "ubuntu1804"
-      }
+        "vm_name": "ubuntu1804.qcow2"
+      },
+      "post-processors": [
+        [
+          {
+            "type": "shell-local",
+            "inline": ["onevm disk-saveas ubuntu1804.qcow2 0 ubuntu1804fin.qcow2"]
+          }
+        ]
+      ]
   }

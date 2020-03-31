@@ -24,4 +24,16 @@
           - curl
           - vim
         state: present
-      when: ansible_os_family == 'Debian'
+    #- name: descargar paquete de contextualizacion de ONE  
+     # get_url:
+      #  url: https://github.com/OpenNebula/addon-context-linux/releases/download/v5.10.0/one-context_5.10.0-1.deb
+       # dest: /hola
+    - name: eliminal cloud-init  
+      apt:
+        name: cloud-init
+        purge: yes
+        #force: yes
+    - name: descargar e instalar paquete de contextualizacion ONE
+      apt:
+        deb: https://github.com/OpenNebula/addon-context-linux/releases/download/v5.10.0/one-context_5.10.0-1.deb
+        
