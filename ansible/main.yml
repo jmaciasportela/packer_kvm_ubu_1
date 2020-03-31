@@ -14,13 +14,7 @@
 
   roles:
     - role: geerlingguy.nfs
-
-    - role: geerlingguy.packer_rhel
-      when: ansible_os_family == 'RedHat'
-
-    - role: geerlingguy.packer-debian
-      when: ansible_os_family == 'Debian'
-
+  
   tasks:
     - name: Install some helpful utilities.
       apt:
