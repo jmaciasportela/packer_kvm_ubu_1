@@ -1,74 +1,56 @@
 {
-    "builders":
-    [
-      {
-        "type": "qemu",
-        "accelerator": "kvm",
-        "headless": true,
-        "qemuargs": [
-            [ "-m", "2048M" ],
-            [ "-smp", "cpus=1,maxcpus=16,cores=4" ]
+    "builders": [
+        {
+          "type": "qemu",
+          "accelerator": "kvm",
+          "qemuargs": [
+            [ "-m", "{{ user `memory` }}" ],
+            [ "-display", "none" ],
+            [ "-machine", "accel=kvm" ],
+            [ "-cpu", "host" ],
+            [ "-smp", "cpus={{ user `cpus`}}"]
           ],
 
-        "vm_name": "julian",  
-        "output_directory": "myUbuntu-img",
-        "format": "qcow2",
-        
-        "disk_size": "65536",
-        "net_device": "virtio-net",
-        "disk_interface": "virtio",
-        
+          "boot_command": [
+            "{{ user `boot_command_prefix` }}",
+            "/install/vmlinuz noapic ",
+            "file=/floppy/{{ user `preseed` }} ",
+            "debian-installer={{ user `locale` }} auto locale={{ user `locale` }} kbd-chooser/method=us ",
+            "hostname={{ user `hostname` }} ",
+            "fb=false debconf/frontend=noninteractive ",
+            "keyboard-configuration/modelcode=SKIP ",
+            "keyboard-configuration/layout=USA ",
+            "keyboard-configuration/variant=USA console-setup/ask_detect=false ",
+            "passwd/user-fullname={{ user `ssh_fullname` }} ",
+            "passwd/user-password={{ user `ssh_password` }} ",
+            "passwd/user-password-again={{ user `ssh_password` }} ",
+            "passwd/username={{ user `ssh_username` }} ",
+            "initrd=/install/initrd.gz -- <enter>"
+          ],
 
+          "disk_size": "{{ user `disk_size` }}",
+          "floppy_files": [
+            "http/{{ user `preseed` }}"
+          ],
 
-        "iso_url": "http://cdimage.ubuntu.com/ubuntu/releases/bionic/release/ubuntu-18.04.4-server-amd64.iso",
-        "iso_checksum": "e2ecdace33c939527cbc9e8d23576381c493b071107207d2040af72595f8990b",
-        "iso_checksum_type": "sha256",
-        
-        
-        "http_directory": "http",
-        "http_port_min": 10082,
-        "http_port_max": 10089,
+          "headless": "{{ user `headless` }}",
 
-        "ssh_host_port_min": 2222,
-        "ssh_host_port_max": 2229,
+          "http_directory": "http",
+          
+          "iso_checksum": "{{ user `iso_checksum` }}",
+          "iso_checksum_type": "{{ user `iso_checksum_type` }}",
+          "iso_urls": [ "{{ user `iso_url` }}" ],
 
-        "ssh_username": "vagrant",
-        "ssh_password": "vagrant",
-        "ssh_timeout": "20m",
-        "ssh_port": 22,
-
-        
-
-        "boot_wait": "40s",
-        "boot_command": [
-            "<esc><wait>",
-            "<esc><wait>",
-            "<enter><wait>",
-            "/install/vmlinuz<wait>",
-            " auto<wait>",
-            " console-setup/ask_detect=false<wait>",
-            " console-setup/layoutcode=us<wait>",
-            " console-setup/modelcode=pc105<wait>",
-            " debconf/frontend=noninteractive<wait>",
-            " debian-installer=en_US<wait>",
-            " fb=false<wait>",
-            " initrd=/install/initrd.gz<wait>",
-            " kbd-chooser/method=us<wait>",
-            " keyboard-configuration/layout=USA<wait>",
-            " keyboard-configuration/variant=USA<wait>",
-            " locale=en_US<wait>",
-            " netcfg/get_domain=vm<wait>",
-            " netcfg/get_hostname=vagrant<wait>",
-            " grub-installer/bootdev=/dev/sda<wait>",
-            " noapic<wait>",
-            " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg<wait>",
-            " -- <wait>",
-            "<enter><wait>"
-        ],
-
-        "shutdown_command": "echo 'packer' | sudo -S shutdown -P now"
-      }
-    ],
+          "output_directory": "output-{{ user `vm_name` }}",
+          "shutdown_command": "echo '{{ user `ssh_password` }}'|sudo -S shutdown -P now",
+          
+          "ssh_password": "{{ user `ssh_password` }}",
+          "ssh_username": "{{ user `ssh_username` }}",
+          "ssh_wait_timeout": "10000s",
+          "vm_name": "{{ user `vm_name` }}"
+          
+        }
+      ],
     "provisioners": [
         {
           "type": "shell",
@@ -90,5 +72,36 @@
           "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
           "script": "scripts/cleanup.sh"
         }
-      ]
+      ],
+      "variables": {
+        "boot_command_prefix": "<esc><esc><enter><wait>",        
+        "cleanup_pause": "",
+        "cpus": "1",
+        "custom_script": ".",
+        "desktop": "false",
+        "disk_size": "65536",
+        "ftp_proxy": "{{env `ftp_proxy`}}",
+        "headless": "",
+        "http_proxy": "{{env `http_proxy`}}",
+        "https_proxy": "{{env `https_proxy`}}",
+        "install_vagrant_key": "true",
+        "install_dev_packages": "false",
+        "iso_checksum": "e2ecdace33c939527cbc9e8d23576381c493b071107207d2040af72595f8990b",
+        "iso_checksum_type": "sha1",
+        "iso_name": "ubuntu-16.04-server-amd64.iso",
+        "iso_url": "http://cdimage.ubuntu.com/ubuntu/releases/bionic/release/ubuntu-18.04.4-server-amd64.iso",
+        "locale": "en_US",
+        "memory": "512",
+        "no_proxy": "{{env `no_proxy`}}",
+        "preseed" : "preseed.cfg",
+        "rsync_proxy": "{{env `rsync_proxy`}}",
+        "hostname": "vagrant",
+        "ssh_fullname": "vagrant",
+        "ssh_password": "vagrant",
+        "ssh_username": "vagrant",
+        "update": "false",
+        "vagrantfile_template": "",
+        "version": "1",
+        "vm_name": "ubuntu1804"
+      }
   }
