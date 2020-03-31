@@ -14,7 +14,7 @@
         "output_directory": "myUbuntu-img",
         "format": "qcow2",
         
-        "disk_size": "5000M",
+        "disk_size": "65536",
         "net_device": "virtio-net",
         "disk_interface": "virtio",
         
