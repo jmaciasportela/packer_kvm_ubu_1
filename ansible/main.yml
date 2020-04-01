@@ -34,9 +34,10 @@
         url: https://github.com/OpenNebula/addon-context-linux/releases/download/v5.0.3/one-context_5.0.3.deb
         dest: /root/hello/one-context_5.0.3.deb
     - name: desinstalat could init
-      apt:
-        name: cloud-init
-        purge: yes
+      shell: apt-get purge -y cloud-init
+      #apt:
+      #  name: cloud-init
+      #  purge: yes
     - name: instalat archivo .deb
       apt:
         deb: one-context*deb
