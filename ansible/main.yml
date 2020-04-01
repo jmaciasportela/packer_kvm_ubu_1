@@ -24,16 +24,11 @@
           - curl
           - vim
         state: present
-    #- name: descargar paquete de contextualizacion de ONE  
-     # get_url:
-      #  url: https://github.com/OpenNebula/addon-context-linux/releases/download/v5.10.0/one-context_5.10.0-1.deb
-       # dest: /hola
-    - name: eliminal cloud-init  
-      apt:
-        name: cloud-init
-        purge: yes
-        #force: yes
-    - name: descargar e instalar paquete de contextualizacion ONE
-      apt:
-        deb: https://github.com/OpenNebula/addon-context-linux/releases/download/v5.10.0/one-context_5.10.0-1.deb
-        
+
+    - name: contectualizacion ONE
+      command:
+      argv:
+        - wget https://github.com/OpenNebula/addon-context-linux/releases/download/v5.0.3/one-context_5.0.3.deb
+        - dpkg -i one-context*deb
+        - apt-get install ruby # only needed for onegate command
+        - apt-get install -y cloud-utils
