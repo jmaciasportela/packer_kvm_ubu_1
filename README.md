@@ -28,3 +28,51 @@ voy a crear desde 0 una plantilla de packer para ubuntu en kvm de manera que est
    [ "-device", "virtio-net,netdev=forward,id=net0"]
  ]
 }
+
+
+provisioners anteriores:
+
+"provisioners": [
+        {
+          "type": "shell",
+          "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+          "script": "scripts/ansible.sh"
+        },
+        {
+          "type": "shell",
+          "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+          "script": "scripts/setup.sh"
+        },
+        {
+          "type": "ansible-local",
+          "playbook_file": "ansible/main.yml",
+          "galaxy_file": "ansible/requirements.yml"
+        },
+        {
+          "type": "shell",
+          "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+          "script": "scripts/cleanup.sh"
+        }
+      ],
+
+
+
+postprocessors:
+
+ "post-processors": [
+        [
+          {
+            "type": "shell-local",
+            "inline": ["onevm disk-saveas /home/sysadmin/proyectoCI/MyPacker1/packer_kvm_ubu_1/output/ubuntu1804.qcow2 0 ubuntu1804fin.qcow2"]
+          }
+        ]
+      ]
+
+
+
+ansible: 
+
+roles despues de pretasks
+
+  roles:
+    - role: geerlingguy.nfs

@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: target
   become: yes
   gather_facts: yes
 
@@ -12,10 +12,9 @@
         - ansible_os_family == 'RedHat'
         - ansible_distribution_major_version | int == 6
 
-  roles:
-    - role: geerlingguy.nfs
   
   tasks:
+    
     - name: Install some helpful utilities.
       apt:
         name:
@@ -25,10 +24,28 @@
           - vim
         state: present
 
-    - name: contectualizacion ONE
-      command:
-        argv:
-          - wget https://github.com/OpenNebula/addon-context-linux/releases/download/v5.0.3/one-context_5.0.3.deb
-          - dpkg -i one-context*deb
-          - apt-get install ruby # only needed for onegate command
-          - apt-get install -y cloud-utils
+    - name: Creates directory
+      file:
+        path: /root/hello
+        state: directory    
+
+    - name: descargar ONE contextualizacion
+      get_url:
+        url: https://github.com/OpenNebula/addon-context-linux/releases/download/v5.0.3/one-context_5.0.3.deb
+        dest: /root/hello/one-context_5.0.3.deb
+    - name: desinstalat could init
+      apt:
+        name: cloud-init
+        purge: yes
+    - name: instalat archivo .deb
+      apt:
+        deb: one-context*deb
+    - name: instalat ruby
+      apt:
+        name: ruby
+        state: present
+    - name: instalat cloud utilities
+      apt:
+        name: cloud-utilities
+        force: yes
+
