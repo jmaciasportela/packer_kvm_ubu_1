@@ -35,18 +35,18 @@
         dest: /root/hello/one-context_5.0.3.deb
     - name: desinstalat could init
       shell: apt-get purge -y cloud-init
-      #apt:
-      #  name: cloud-init
-      #  purge: yes
-    - name: instalat archivo .deb
+     
+    - name: instalar archivo .deb
       apt:
-        deb: one-context*deb
-    - name: instalat ruby
+        deb: /root/hello/one-context_5.0.3.deb
+        force: yes
+    - name: instalar ruby
       apt:
         name: ruby
         state: present
-    - name: instalat cloud utilities
+    - name: instalar cloud utils
       apt:
-        name: cloud-utilities
+        name: cloud-utils
         force: yes
+        state: present
 
