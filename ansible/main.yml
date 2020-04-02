@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  become: yes
+  become_user: root
   gather_facts: yes
 
   pre_tasks:
@@ -31,22 +31,14 @@
 
     - name: descargar ONE contextualizacion
       get_url:
-        url: https://github.com/OpenNebula/addon-context-linux/releases/download/v5.0.3/one-context_5.0.3.deb
-        dest: /root/hello/one-context_5.0.3.deb
-    - name: desinstalat could init
+        url: https://github.com/OpenNebula/addon-context-linux/releases/download/v5.10.0/one-context_5.10.0-1.deb
+        dest: /root/hello/one-context_5.10.0-1.deb
+
+    - name: desinstalar could init
       shell: apt-get purge -y cloud-init
+
+    - name: instalar one context
+      shell: dpkg -i one-context_*deb || apt-get install -fy 
      
-    - name: instalar archivo .deb
-      apt:
-        deb: /root/hello/one-context_5.0.3.deb
-        force: yes
-    - name: instalar ruby
-      apt:
-        name: ruby
-        state: present
-    - name: instalar cloud utils
-      apt:
-        name: cloud-utils
-        force: yes
-        state: present
+    
 
