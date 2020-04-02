@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  become_user: root
+  become: yes
   gather_facts: yes
 
   pre_tasks:
