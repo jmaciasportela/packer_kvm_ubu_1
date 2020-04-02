@@ -76,7 +76,7 @@
             "inline": [
               "oneimage create -d 1 --name fin_ubuntu_18.04 --path output/ubuntu1804.qcow2 --type OS --driver qcow2 ",
               "onetemplate create templateONE/templateUbun.tmpl",
-              "onetemplate instantiate temple --name mejorateMaci"
+              "onetemplate instantiate temple_Ubu_18.04 --name mejorateMaci"
             ]
           }
          ]
