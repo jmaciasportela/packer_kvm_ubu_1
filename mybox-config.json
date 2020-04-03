@@ -19,8 +19,8 @@
             "hostname={{ user `hostname` }} ",
             "fb=false debconf/frontend=noninteractive ",
             "keyboard-configuration/modelcode=SKIP ",
-            "keyboard-configuration/layout=USA ",
-            "keyboard-configuration/variant=USA console-setup/ask_detect=false ",
+            "keyboard-configuration/layout=ES ",
+            "keyboard-configuration/variant=ES console-setup/ask_detect=false ",
             "passwd/user-fullname={{ user `ssh_fullname` }} ",
             "passwd/user-password={{ user `ssh_password` }} ",
             "passwd/user-password-again={{ user `ssh_password` }} ",
@@ -66,6 +66,11 @@
           "type": "ansible-local",
           "playbook_file": "ansible/main.yml",
           "galaxy_file": "ansible/requirements.yml"
+        },
+        {
+          "type": "shell",
+          "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+          "script": "scripts/cleanup.sh"
         }
       ],
 
@@ -100,7 +105,7 @@
         "iso_name": "ubuntu-18.04-server-amd64.iso",
         "iso_url": "http://cdimage.ubuntu.com/ubuntu/releases/bionic/release/ubuntu-18.04.4-server-amd64.iso",
         "locale": "en_US",
-        "memory": "4012",
+        "memory": "2012",
         "no_proxy": "{{env `no_proxy`}}",
         "preseed" : "preseed.cfg",
         "rsync_proxy": "{{env `rsync_proxy`}}",

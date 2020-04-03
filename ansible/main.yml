@@ -26,19 +26,19 @@
 
     - name: Creates directory
       file:
-        path: /root/hello
+        path: /etc/hello
         state: directory    
 
     - name: descargar ONE contextualizacion
       get_url:
         url: https://github.com/OpenNebula/addon-context-linux/releases/download/v5.10.0/one-context_5.10.0-1.deb
-        dest: /root/hello/one-context_5.10.0-1.deb
+        dest: /etc/hello/one-context_5.10.0-1.deb
 
     - name: desinstalar could init
       shell: apt-get purge -y cloud-init
 
     - name: instalar one context
-      shell: dpkg -i one-context_*deb || apt-get install -fy 
+      shell: dpkg -i /etc/hello/one-context_*deb || apt-get install -fy 
      
     
 
