@@ -1,0 +1,166 @@
+{
+    "builders": [
+        {
+          "type": "qemu", # el constructor puede ser vagrant azure vbox docker
+          "accelerator": "kvm",  # qemu puede emplear kvm o xen, por defecto utiliza kvm
+          "qemuargs": [
+            [ "-m", "{{ user `memory` }}" ],  #por defecto la memoria son 512mb
+            [ "-display", "none" ],
+            [ "-machine", "accel=kvm" ],
+            [ "-cpu", "host" ],
+            [ "-smp", "cpus={{ user `cpus`}}"]  # se puede selecionar tambien la interfaz de disco ide, scsi, virtio(esta se usa por defecto) linux tiene los drivers de virto incluidos
+          ],   el driver de la interfz de red por defecto es virtio-net
+        
+            #para que se de la comunicacion ssh necesitamos favilitarle un kickstart file en el directorio http
+          "boot_command": [ escribe los comandos mediante una conexion por VNC simulando que un humano es el que escribe
+                            las teclas se escriben con 100ms de retardo pero se puede modificar mediante boot_key_interval
+                            es un array de cadenas
+            "{{ user `boot_command_prefix` }}",
+            "/install/vmlinuz noapic ", vmlinuz contiene el nucleo de linux, noapic desactiva las interrupciones de los dispositivos
+            "file=/floppy/{{ user `preseed` }} ", creo que es para pasarle a la vm el archivo preseed.cfg, si queremos mover arvhivos mas grandes usar http_directory
+            "debian-installer={{ user `locale` }} auto locale={{ user `locale` }} kbd-chooser/method=us ", lengua pais y locale todo a la vez se puede hacer indivudualmente
+            "hostname={{ user `hostname` }} ",
+            "fb=false debconf/frontend=noninteractive ",
+            "keyboard-configuration/modelcode=SKIP ",
+            "keyboard-configuration/layout=USA ",
+            "keyboard-configuration/variant=USA console-setup/ask_detect=false ", variante de usa y desactuva deteccion automatica
+            "passwd/user-fullname={{ user `ssh_fullname` }} ", no crea un usuario root, crea un usuario normal que tiene acceso a sudo
+            "passwd/user-password={{ user `ssh_password` }} ",
+            "passwd/user-password-again={{ user `ssh_password` }} ",
+            "passwd/username={{ user `ssh_username` }} ",
+            "initrd=/install/initrd.gz -- <enter>" los ficheros que necesitan ser accedidos por el nucleo durante el arranque se almacenan en un disco ram, esta comprimido
+          ],
+
+          "disk_size": "{{ user `disk_size` }}",      # por defecto son 40 GB
+          "floppy_files": [
+            "http/{{ user `preseed` }}"  # se emplea para tranferir archivos a la VM no puede exceder 1,44mb
+          ],
+
+          "headless": "{{ user `headless` }}",  por defecto lanza un GUI que muestra como se construye la maquina, si se pone a true no lo hace
+            # si false esta habilitado el direcionamiiento x11
+            # aunque este deshabilito puedes seguir uniendote usando vncviewer -Shared <host><display>
+
+          "http_directory": "http", #directorio del server, pq se crea un servidor http?
+            # useful for hosting kickstart files and so on
+            # creo que tiene la arquitectura necesaria para el constructor
+          "iso_checksum": "{{ user `iso_checksum` }}",
+          "iso_checksum_type": "{{ user `iso_checksum_type` }}",
+          "iso_urls": [ "{{ user `iso_url` }}" ], para descargar o copiar ficheros utiliza go-getter en modo file, es un programa de harshicorp
+          # se puede sino usar iso_checksum_url, la direccion del puerto estaran diponibles en variables del boot command, http_port_min, http_port_max 
+
+          "output_directory": "output", # el directorio de salida no debe existir o estar vacio para correr el builder
+          "shutdown_command": "echo '{{ user `ssh_password` }}'|sudo -S shutdown -P now", # se apaga una vez todos los provisiones se han completado 
+          # importante añadir este comando para asegurarnos de que guarda la maquina
+          # si alguno de lo script necesita un reboot dejar esta configuracion en blanco ya que sino podria haber algun error, en el ultimo script del provisioner apagar la maquina
+          
+          "ssh_password": "{{ user `ssh_password` }}",
+          "ssh_username": "{{ user `ssh_username` }}",
+          ssh_port por defecto esta a 22
+          ssh_keypair_name creo que es para pasar la ssh key
+          "ssh_wait_timeout": "10000s", #el tiempo a esperar para que la conexion ssh este disponible
+          "vm_name": "{{ user `vm_name` }}"
+
+
+          #podria añadir:
+           boot_wait: para dar un tiempo determinado a la maquina para arrancar
+           format: "qcow2" (por defecto) o raw
+           vnc_bind_address  la direccion ip de la vrdp RDP de la maquina virtual donde se muestra la interfaz, por defecto 127.0.0.1
+           vnc_port_min or max
+           vnc_use_password
+           shutdown_timeout tiempo maximo que damos a la maquina para que se apague, por defecto son "5m"
+           communicator por defectos ssh pero se puede usar winrm para "windows"
+           host_port_max or min
+        }
+      ],
+    "provisioners": [
+        {
+          "type": "shell",
+          "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+          "script": "scripts/ansible.sh"
+        },
+        {
+          "type": "shell",
+          "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+          "script": "scripts/setup.sh"
+        },
+        {
+          "type": "ansible-local",
+          "playbook_file": "ansible/main.yml",
+          "galaxy_file": "ansible/requirements.yml"
+        },
+        {
+          "type": "shell",
+          "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+          "script": "scripts/cleanup.sh"
+        }
+      ],
+
+      "post-processors": [
+        [
+          {
+            "type": "shell-local",
+            "inline": [
+              "oneimage create -d 1 --name fin_ubuntu_18.04 --path output/ubuntu1804.qcow2 --type OS --driver qcow2 ",
+              "onetemplate create templateONE/templateUbun.tmpl",
+              "onetemplate instantiate temple_Ubu_18.04 --name mejorateMaci"
+            ]
+          }
+         ]
+      ],
+
+      "variables": {
+        "boot_command_prefix": "<esc><esc><enter><wait>",        
+        "cleanup_pause": "",
+        "cpus": "2",
+        "custom_script": ".",
+        "desktop": "false",
+        "disk_size": "22036",
+        "ftp_proxy": "{{env `ftp_proxy`}}",
+        "headless": "",
+        "http_proxy": "{{env `http_proxy`}}",
+        "https_proxy": "{{env `https_proxy`}}",
+        "install_vagrant_key": "true",
+        "install_dev_packages": "false",
+        "iso_checksum": "e2ecdace33c939527cbc9e8d23576381c493b071107207d2040af72595f8990b",
+        "iso_checksum_type": "sha256",
+        "iso_name": "ubuntu-18.04-server-amd64.iso",
+        "iso_url": "http://cdimage.ubuntu.com/ubuntu/releases/bionic/release/ubuntu-18.04.4-server-amd64.iso",
+        "locale": "en_US",
+        "memory": "2012",
+        "no_proxy": "{{env `no_proxy`}}",
+        "preseed" : "preseed.cfg",
+        "rsync_proxy": "{{env `rsync_proxy`}}",
+        "hostname": "vagrant",
+        "ssh_fullname": "vagrant",
+        "ssh_password": "vagrant",
+        "ssh_username": "vagrant",
+        "update": "false",
+        "vagrantfile_template": "",
+        "version": "1",
+        "vm_name": "ubuntu1804.qcow2"
+      }
+     
+  }
+
+  choose-mirror-bin mirror/http/proxy string
+d-i debian-installer/framebuffer boolean false
+d-i debconf/frontend select noninteractive
+d-i base-installer/kernel/override-image string linux-server
+d-i clock-setup/utc boolean true
+d-i clock-setup/utc-auto boolean true
+d-i finish-install/reboot_in_progress note
+d-i grub-installer/only_debian boolean true
+d-i grub-installer/with_other_os boolean true
+d-i partman-auto/method string regular
+d-i partman/choose_partition select finish
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+d-i partman/confirm_write_new_label boolean true
+d-i pkgsel/include string openssh-server
+d-i pkgsel/install-language-support boolean false
+d-i pkgsel/update-policy select none
+d-i pkgsel/upgrade select full-upgrade
+d-i time/zone string UTC
+d-i user-setup/allow-password-weak boolean true
+d-i user-setup/encrypt-home boolean false
+tasksel tasksel/first multiselect standard, ubuntu-server

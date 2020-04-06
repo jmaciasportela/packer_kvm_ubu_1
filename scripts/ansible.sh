@@ -2,9 +2,7 @@
 
 # Install Ansible repository.
 apt -y update && apt-get -y upgrade
-apt -y install software-properties-common
-apt-add-repository ppa:ansible/ansible
+apt -y install python3-minimal python3-pip
 
 # Install Ansible.
-apt -y update
-apt -y install ansible
+pip3 install ansible==2.9.6

@@ -10,7 +10,7 @@
             [ "-cpu", "host" ],
             [ "-smp", "cpus={{ user `cpus`}}"]
           ],
-
+          "vm_name": "{{ user `vm_name` }}",
           "boot_command": [
             "{{ user `boot_command_prefix` }}",
             "/install/vmlinuz noapic ",
@@ -27,96 +27,78 @@
             "passwd/username={{ user `ssh_username` }} ",
             "initrd=/install/initrd.gz -- <enter>"
           ],
-
           "disk_size": "{{ user `disk_size` }}",
+          "http_directory": "http",
           "floppy_files": [
             "http/{{ user `preseed` }}"
           ],
-
           "headless": "{{ user `headless` }}",
-
-          "http_directory": "http",
-
           "iso_checksum": "{{ user `iso_checksum` }}",
           "iso_checksum_type": "{{ user `iso_checksum_type` }}",
           "iso_urls": [ "{{ user `iso_url` }}" ],
-
           "output_directory": "output",
           "shutdown_command": "echo '{{ user `ssh_password` }}'|sudo -S shutdown -P now",
-          
           "ssh_password": "{{ user `ssh_password` }}",
           "ssh_username": "{{ user `ssh_username` }}",
-          "ssh_wait_timeout": "10000s",
-          "vm_name": "{{ user `vm_name` }}"
-          
+          "ssh_wait_timeout": "1200s"
         }
       ],
     "provisioners": [
         {
           "type": "shell",
-          "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+          "execute_command": "echo {{user `ssh_password`}} | {{.Vars}} sudo -S -E bash '{{.Path}}'",
           "script": "scripts/ansible.sh"
         },
         {
           "type": "shell",
-          "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+          "execute_command": "echo {{user `ssh_password`}} | {{.Vars}} sudo -S -E bash '{{.Path}}'",
           "script": "scripts/setup.sh"
         },
         {
           "type": "ansible-local",
           "playbook_file": "ansible/main.yml",
-          "galaxy_file": "ansible/requirements.yml"
+          "playbook_dir": "ansible"
         },
         {
           "type": "shell",
-          "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+          "execute_command": "echo {{user `ssh_password`}} | {{.Vars}} sudo -S -E bash '{{.Path}}'",
           "script": "scripts/cleanup.sh"
         }
       ],
-
-      "post-processors": [
-        [
-          {
-            "type": "shell-local",
-            "inline": [
-              "oneimage create -d 1 --name fin_ubuntu_18.04 --path output/ubuntu1804.qcow2 --type OS --driver qcow2 ",
-              "onetemplate create templateONE/templateUbun.tmpl",
-              "onetemplate instantiate temple_Ubu_18.04 --name mejorateMaci"
-            ]
-          }
-         ]
-      ],
-
-      "variables": {
-        "boot_command_prefix": "<esc><esc><enter><wait>",        
-        "cleanup_pause": "",
-        "cpus": "2",
-        "custom_script": ".",
-        "desktop": "false",
-        "disk_size": "22036",
-        "ftp_proxy": "{{env `ftp_proxy`}}",
-        "headless": "",
-        "http_proxy": "{{env `http_proxy`}}",
-        "https_proxy": "{{env `https_proxy`}}",
-        "install_vagrant_key": "true",
-        "install_dev_packages": "false",
-        "iso_checksum": "e2ecdace33c939527cbc9e8d23576381c493b071107207d2040af72595f8990b",
-        "iso_checksum_type": "sha256",
-        "iso_name": "ubuntu-18.04-server-amd64.iso",
-        "iso_url": "http://cdimage.ubuntu.com/ubuntu/releases/bionic/release/ubuntu-18.04.4-server-amd64.iso",
-        "locale": "en_US",
-        "memory": "2012",
-        "no_proxy": "{{env `no_proxy`}}",
-        "preseed" : "preseed.cfg",
-        "rsync_proxy": "{{env `rsync_proxy`}}",
-        "hostname": "vagrant",
-        "ssh_fullname": "vagrant",
-        "ssh_password": "vagrant",
-        "ssh_username": "vagrant",
-        "update": "false",
-        "vagrantfile_template": "",
-        "version": "1",
-        "vm_name": "ubuntu1804.qcow2"
-      }
-     
+    "post-processors": [
+      [
+        {
+          "type": "shell-local",
+          "inline": [
+            "oneimage create -d 1 --name one-ubuntu-base-1804.qcow2 --path output/one-ubuntu-base-1804.qcow2 --type OS --driver qcow2 "
+          ]
+        }
+        ]
+    ],
+    "variables": {
+      "boot_command_prefix": "<esc><esc><enter><wait>",
+      "cleanup_pause": "",
+      "cpus": "2",
+      "custom_script": ".",
+      "desktop": "false",
+      "disk_size": "8192",
+      "headless": "true",
+      "install_vagrant_key": "true",
+      "install_dev_packages": "false",
+      "iso_checksum": "e2ecdace33c939527cbc9e8d23576381c493b071107207d2040af72595f8990b",
+      "iso_checksum_type": "sha256",
+      "iso_name": "ubuntu-18.04-server-amd64.iso",
+      "iso_url": "http://cdimage.ubuntu.com/ubuntu/releases/bionic/release/ubuntu-18.04.4-server-amd64.iso",
+      "locale": "es_ES",
+      "memory": "2048",
+      "preseed" : "preseed.cfg",
+      "hostname": "ubuntu-baseimage",
+      "ssh_fullname": "sysadmin",
+      "ssh_password": "{{env `SYSADMIN_PASSWORD`}}",
+      "ssh_username": "sysadmin",
+      "update": "false",
+      "vagrantfile_template": "",
+      "version": "1",
+      "vm_name": "one-ubuntu-base-1804.qcow2"
+    }
   }
