@@ -76,3 +76,28 @@ roles despues de pretasks
 
   roles:
     - role: geerlingguy.nfs
+
+
+
+
+
+    - name: descargar ONE contextualizacion
+      get_url:
+        url: https://github.com/OpenNebula/addon-context-linux/releases/download/v5.0.3/one-context_5.0.3.deb
+        dest: /root/hello/one-context_5.0.3.deb
+    - name: desinstalat could init
+      shell: apt-get purge -y cloud-init
+
+    - name: instalar archivo .deb
+      apt:
+        deb: /root/hello/one-context_5.0.3.deb
+        force: yes
+    - name: instalar ruby
+      apt:
+        name: ruby
+        state: present
+    - name: instalar cloud utils
+      apt:
+        name: cloud-utils
+        force: yes
+        state: present
